@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Tasks" representedClassName="Tasks" syncable="YES">
+        <attribute name="taskDate" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="taskDescription" attributeType="String"/>
+        <attribute name="taskID" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="taskName" attributeType="String"/>
+        <attribute name="taskStatus" attributeType="Boolean" usesScalarValueType="YES"/>
+    </entity>
+</model>

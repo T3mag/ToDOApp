@@ -8,6 +8,9 @@
 import UIKit
 
 class TaskScreenView: UIView {
+    
+    private var buttonStatus: [Bool] = [true, false, false]
+    private var viewControler: TaskScreenViewController?
     lazy var mainLabel: UILabel = {
         let label = UILabel()
         label.text = "Мои задачи"
@@ -16,7 +19,6 @@ class TaskScreenView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
     lazy var dateLabel: UILabel = {
         let label = UILabel()
         label.text = "Вторник, 23 сентября"
@@ -25,7 +27,6 @@ class TaskScreenView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
     lazy var addTaskButton: UIButton = {
         let button = UIButton()
         button.setTitle(" + Новая задача ", for: .normal)
@@ -36,7 +37,6 @@ class TaskScreenView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
     lazy var tasksListTableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -45,14 +45,17 @@ class TaskScreenView: UIView {
         tableView.separatorColor = .clear
         return tableView
     }()
-    
     lazy var allTaskButton: UIButton = {
         let button = UIButton()
+        let action = UIAction { [weak self] _ in
+            self?.buttonStatus = [true, false, false]
+            self?.changeTypeTasks()
+        }
         button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addAction(action, for: .touchUpInside)
         return button
     }()
-    
     lazy var allTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -64,11 +67,10 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    
     lazy var countTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = " 25 "
+        label.text = " 0 "
         label.textColor = .white
         label.backgroundColor = UIColor(red: 49/255, green: 89/255, blue: 235/255, alpha: 1)
         label.font = UIFont.systemFont(ofSize: 10)
@@ -77,21 +79,23 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    
     lazy var devidingLineLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.backgroundColor = UIColor(red: 223/255, green: 223/255, blue: 223/255, alpha: 1)
         return label
     }()
-    
     lazy var completeTasksButton: UIButton = {
         let button = UIButton()
+        let action = UIAction { [weak self] _ in
+            self?.buttonStatus = [false, true, false]
+            self?.changeTypeTasks()
+        }
         button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addAction(action, for: .touchUpInside)
         return button
     }()
-    
     lazy var completeTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -103,11 +107,10 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    
     lazy var countCompleteTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = " 15 "
+        label.text = " 0 "
         label.textColor = .white
         label.backgroundColor = UIColor(red: 217/255, green: 217/255, blue: 217/255, alpha: 1)
         label.font = UIFont.systemFont(ofSize: 10)
@@ -116,14 +119,17 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    
     lazy var doTasksButton: UIButton = {
         let button = UIButton()
+        let action = UIAction { [weak self] _ in
+            self?.buttonStatus = [false, false, true]
+            self?.changeTypeTasks()
+        }
         button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addAction(action, for: .touchUpInside)
         return button
     }()
-    
     lazy var doTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -135,11 +141,10 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    
     lazy var countDoTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = " 10 "
+        label.text = " 0 "
         label.textColor = .white
         label.backgroundColor = UIColor(red: 217/255, green: 217/255, blue: 217/255, alpha: 1)
         label.font = UIFont.systemFont(ofSize: 10)
@@ -160,9 +165,30 @@ class TaskScreenView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func reloadData() {
+        tasksListTableView.reloadData()
+    }
+    
+    func getButtonsStatus() -> [Bool] {
+        return buttonStatus
+    }
+    
+    func setupViewController(viewController: TaskScreenViewController) {
+        self.viewControler = viewController
+    }
+    
     func setupTableView(configuration: TaskScreenTableViewConfiguration) {
         tasksListTableView.dataSource = configuration
         tasksListTableView.delegate = configuration
+    }
+    
+    func updateCountersTask(totalTasks: Int, completeTasks: Int, inWorkTasks: Int) {
+        countTasksLabel.text = " \(totalTasks) "
+        countCompleteTasksLabel.text = " \(completeTasks) "
+        countDoTasksLabel.text = " \(inWorkTasks) "
+        countTasksLabel.reloadInputViews()
+        countCompleteTasksLabel.reloadInputViews()
+        countDoTasksLabel.reloadInputViews()
     }
     
     func setupLayoutHeaders() {
@@ -275,5 +301,32 @@ class TaskScreenView: UIView {
             tasksListTableView.bottomAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.bottomAnchor, constant: 0)
         ])
+    }
+    
+    func changeTypeTasks() {
+        allTasksLabel.textColor = UIColor(red: 183/255, green: 183/255, blue: 183/255, alpha: 1)
+        countTasksLabel.backgroundColor = UIColor(red: 217/255, green: 217/255, blue: 217/255, alpha: 1)
+        completeTasksLabel.textColor = UIColor(red: 183/255, green: 183/255, blue: 183/255, alpha: 1)
+        countCompleteTasksLabel.backgroundColor = UIColor(red: 217/255, green: 217/255, blue: 217/255, alpha: 1)
+        doTasksLabel.textColor = UIColor(red: 183/255, green: 183/255, blue: 183/255, alpha: 1)
+        countDoTasksLabel.backgroundColor = UIColor(red: 217/255, green: 217/255, blue: 217/255, alpha: 1)
+        
+        viewControler?.updateTasksLists(status: buttonStatus)
+        for counter in 0...2 {
+            if buttonStatus[counter] == true {
+                if counter == 0 {
+                    allTasksLabel.textColor = UIColor(red: 49/255, green: 89/255, blue: 235/255, alpha: 1)
+                    countTasksLabel.backgroundColor = UIColor(red: 49/255, green: 89/255, blue: 235/255, alpha: 1)
+                }
+                if counter == 1 {
+                    completeTasksLabel.textColor = UIColor(red: 49/255, green: 89/255, blue: 235/255, alpha: 1)
+                    countCompleteTasksLabel.backgroundColor = UIColor(red: 49/255, green: 89/255, blue: 235/255, alpha: 1)
+                }
+                if counter == 2 {
+                    doTasksLabel.textColor = UIColor(red: 49/255, green: 89/255, blue: 235/255, alpha: 1)
+                    countDoTasksLabel.backgroundColor = UIColor(red: 49/255, green: 89/255, blue: 235/255, alpha: 1)
+                }
+            }
+        }
     }
 }

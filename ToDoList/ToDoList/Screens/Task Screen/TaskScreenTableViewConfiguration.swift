@@ -5,20 +5,33 @@
 //  Created by Артур Миннушин on 04.09.2024.
 //
 
-import Foundation
 import UIKit
+import Combine
 
 class TaskScreenTableViewConfiguration: NSObject, UITableViewDelegate, UITableViewDataSource {
-    let cellSpacingHeight: CGFloat = 0
     
+    private let cellSpacingHeight: CGFloat = 0
+    private var viewController: TaskScreenViewController?
+    private var tasks: [Tasks] = []
+    private var cancelebels: Set<AnyCancellable> = []
+    
+    init(viewControler: TaskScreenViewController) {
+        super.init()
+        self.viewController = viewControler
+        setupBindings()
+    }
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 5
+        return tasks.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "TasksCell", for: indexPath) as? TaskScreenTableViewCell else { fatalError() }
-        cell.setupTaskInfo(nameTask: "Надо решить задачу по ОРИС", descriptionTask: "Вся инфа лежит в ВК", dateTask: "Сегодня")
+        let task: Tasks = tasks[indexPath.section]
+        cell.setupTaskInfo(nameTask: task.taskName!,
+                           descriptionTask: task.taskDescription!,
+                           dateTask: "Сегодня",
+                           statustask: task.taskStatus)
         return cell
     }
     
@@ -34,5 +47,12 @@ class TaskScreenTableViewConfiguration: NSObject, UITableViewDelegate, UITableVi
         let headerView = UIView()
         headerView.backgroundColor = UIColor.clear
         return headerView
+    }
+    
+    func setupBindings() {
+        viewController?.$tasks
+            .sink { [weak self] tasks in 
+                self?.tasks = tasks
+            }.store(in: &cancelebels)
     }
 }

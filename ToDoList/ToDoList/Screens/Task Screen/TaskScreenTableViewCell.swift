@@ -9,11 +9,13 @@ import UIKit
 
 class TaskScreenTableViewCell: UITableViewCell {
     
+    var statusTask: Bool = false
     lazy var taskNameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         label.textColor = .black
+        label.numberOfLines = 100
         return label
     }()
     
@@ -22,6 +24,7 @@ class TaskScreenTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         label.textColor = UIColor(red: 165/255, green: 165/255, blue: 165/255, alpha: 1)
+        label.numberOfLines = 100
         return label
     }()
     
@@ -41,18 +44,25 @@ class TaskScreenTableViewCell: UITableViewCell {
     }()
     
     lazy var checkMarkButton: UIButton = {
-        let buttton = UIButton(type: .custom)
+        let button = UIButton(type: .custom)
+        let action = UIAction { [weak self] _ in
+            self?.changeCheckMark()
+        }
         let imageConfig = UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold, scale: .small)
-        buttton.translatesAutoresizingMaskIntoConstraints = false
-        buttton.setImage(UIImage(systemName: "checkmark", withConfiguration: imageConfig), for: .normal)
-        buttton.backgroundColor = UIColor(red: 9/255, green: 99/255, blue: 237/255, alpha: 1)
-        buttton.tintColor = .white
-        buttton.layer.cornerRadius = 12
-        return buttton
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "checkmark", withConfiguration: imageConfig), for: .normal)
+        button.backgroundColor = UIColor(red: 9/255, green: 99/255, blue: 237/255, alpha: 1)
+        button.layer.borderColor = CGColor(red: 234/255, green: 234/255, blue: 234/255, alpha: 1)
+        button.tintColor = .white
+        button.layer.cornerRadius = 12
+        button.addAction(action, for: .touchUpInside)
+        button.layer.borderWidth = 1
+        return button
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        contentView.isUserInteractionEnabled = true
         setupLayout()
     }
     
@@ -70,6 +80,8 @@ class TaskScreenTableViewCell: UITableViewCell {
                 equalTo: safeAreaLayoutGuide.topAnchor, constant: 20),
             taskNameLabel.leadingAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            taskNameLabel.trailingAnchor.constraint(
+                equalTo: checkMarkButton.leadingAnchor, constant: -10),
             checkMarkButton.topAnchor.constraint(
                 equalTo: taskNameLabel.topAnchor, constant: 5),
             checkMarkButton.trailingAnchor.constraint(
@@ -82,6 +94,8 @@ class TaskScreenTableViewCell: UITableViewCell {
                 equalTo: taskNameLabel.bottomAnchor, constant: 10),
             taskDescriptionLabel.leadingAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            taskDescriptionLabel.trailingAnchor.constraint(
+                equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -20),
             seporationLineLabel.topAnchor.constraint(
                 equalTo: taskDescriptionLabel.bottomAnchor, constant: 10),
             seporationLineLabel.leadingAnchor.constraint(
@@ -99,10 +113,22 @@ class TaskScreenTableViewCell: UITableViewCell {
         ])
     }
     
-    func setupTaskInfo(nameTask: String, descriptionTask: String, dateTask: String) {
+    func setupTaskInfo(nameTask: String, descriptionTask: String, dateTask: String, statustask: Bool) {
         taskNameLabel.text = nameTask
         taskDescriptionLabel.text = descriptionTask
         taskDateLabel.text = dateTask
+        self.statusTask = statustask
+        changeCheckMark()
+    }
+    
+    func changeCheckMark() {
+        if statusTask {
+            checkMarkButton.backgroundColor = .clear
+            statusTask = false
+        } else {
+            checkMarkButton.backgroundColor = UIColor(red: 9/255, green: 99/255, blue: 237/255, alpha: 1)
+            statusTask = true
+        }
     }
     
     required init?(coder: NSCoder) {

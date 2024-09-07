@@ -7,10 +7,12 @@
 
 import Foundation
 import CoreData
+import Combine
 
 class CoreDataManager {
     static let shared = CoreDataManager()
     let backgroundQueue = DispatchQueue.global()
+    @Published var flagUpdate: Bool = false
     var viewContext: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
@@ -56,36 +58,38 @@ class CoreDataManager {
         }
     }
     
-    func addTasks(taskName: String, taskDescription: String, taskStatus: Bool, taskId: Int?) {
+    func addTasks(taskName: String, taskDescription: String, taskStatus: Bool) {
         let context = backgroundContext
-        return backgroundContext.perform {
+        return backgroundContext.performAndWait {
             let task = Tasks(context: context)
-            task.taskID = Int64(taskId ?? 10000000)
+            task.taskID = Int64(NSUUID().hashValue)
             task.taskName = taskName
             task.taskDescription = taskDescription
             task.taskStatus = taskStatus
             task.taskDate = Date()
-            print("Добавлена заметка с id: \(task.taskID)")
             self.saveBackgroundContext(context: context)
-        }
-    }
-    
-    func asyncObtaineSavedTasks(completion: @escaping([Tasks]) -> Void) {
-        backgroundQueue.async {
-            let videoFetchRequest = Tasks.fetchRequest()
-            let sortDescriptors = NSSortDescriptor(key: "taskDate", ascending: true)
-            videoFetchRequest.sortDescriptors = [sortDescriptors]
-            let result = try? self.viewContext.fetch(videoFetchRequest)
-            completion(result ?? [])
         }
     }
     
     func obtaineSavedTasks() -> [Tasks] {
         let videoFetchRequest = Tasks.fetchRequest()
-        let sortDescriptors = NSSortDescriptor(key: "taskDate", ascending: true)
+        let sortDescriptors = NSSortDescriptor(key: "taskDate", ascending: false)
         videoFetchRequest.sortDescriptors = [sortDescriptors]
         let result = try? self.viewContext.fetch(videoFetchRequest)
         return result ?? []
+    }
+    
+    func updateTasks(taskId: Int64, taskName: String, taskDescription: String, taskStatus: Bool) {
+        let context = backgroundContext
+        return backgroundContext.performAndWait {
+            guard let task = self.obtaineSavedTasks().first(where: {$0.taskID == taskId}) else {
+                fatalError()
+            }
+            task.taskName = taskName
+            task.taskDescription = taskDescription
+            task.taskStatus = taskStatus
+            self.saveBackgroundContext(context: context)
+        }
     }
     
     func seporateSavedTasksStatus() -> ([Tasks], [Tasks]) {
@@ -105,7 +109,7 @@ class CoreDataManager {
     
     func deleteTaskById(taskId: Int64) {
         let context = backgroundContext
-        return backgroundContext.perform {
+        return backgroundContext.performAndWait {
             guard let task = self.obtaineSavedTasks().first(where: {$0.taskID == taskId}) else {
                 fatalError()
             }

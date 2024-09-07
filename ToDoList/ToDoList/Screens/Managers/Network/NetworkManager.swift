@@ -44,7 +44,7 @@ class NetworkManager {
                 print(data.todos.count)
                 tasks = data.todos
                 for i in 0..<tasks.count {
-                    self.coreData.addTasks(taskName: self.tasks[i].todo, taskDescription: self.tasks[i].todo, taskStatus: self.tasks[i].completed, taskId: self.tasks[i].id)
+                    self.coreData.addTasks(taskName: self.tasks[i].todo, taskDescription: self.tasks[i].todo, taskStatus: self.tasks[i].completed)
                 }
                 while data.todos.count != coreData.obtaineSavedTasks().count {}
                 flagObtainedAllStartTasks = true

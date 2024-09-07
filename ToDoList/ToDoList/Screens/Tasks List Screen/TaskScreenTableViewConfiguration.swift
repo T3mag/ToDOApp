@@ -20,6 +20,7 @@ class TaskScreenTableViewConfiguration: NSObject, UITableViewDelegate, UITableVi
         self.viewController = viewControler
         setupBindings()
     }
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         return tasks.count
     }
@@ -28,10 +29,12 @@ class TaskScreenTableViewConfiguration: NSObject, UITableViewDelegate, UITableVi
         guard let cell = tableView.dequeueReusableCell(
             withIdentifier: "TasksCell", for: indexPath) as? TaskScreenTableViewCell else { fatalError() }
         let task: Tasks = tasks[indexPath.section]
+        cell.setupDelegate(delegate: viewController)
         cell.setupTaskInfo(nameTask: task.taskName!,
                            descriptionTask: task.taskDescription!,
-                           dateTask: "Сегодня",
-                           statustask: task.taskStatus)
+                           dateTask: setupDateCell(date: task.taskDate!),
+                           statustask: task.taskStatus,
+                           taskId: task.taskID)
         return cell
     }
     
@@ -49,10 +52,37 @@ class TaskScreenTableViewConfiguration: NSObject, UITableViewDelegate, UITableVi
         return headerView
     }
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == .delete) {
+            viewController?.deleteTaskById(taskId: tasks[indexPath.row].taskID)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        viewController?.openEddingScreen(task: tasks[indexPath.section])
+    }
+    
     func setupBindings() {
         viewController?.$tasks
             .sink { [weak self] tasks in 
                 self?.tasks = tasks
             }.store(in: &cancelebels)
+    }
+    
+    func setupDateCell(date: Date) -> String{
+        let format = DateFormatter()
+        format.dateFormat = "dd.MMMM.YYYY"
+        let cellDate = format.string(from: date)
+        var cellDateLists = cellDate.components(separatedBy: ".")
+        
+        if cellDateLists[0].first == "0" {
+            cellDateLists[0].removeFirst()
+        }
+        
+        return "\(cellDateLists[0]) \(viewController?.translateMounthName(mountName: cellDateLists[1]) ?? "") \(cellDateLists[2])"
     }
 }

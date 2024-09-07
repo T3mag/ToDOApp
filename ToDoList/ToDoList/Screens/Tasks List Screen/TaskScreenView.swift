@@ -11,7 +11,7 @@ class TaskScreenView: UIView {
     
     private var buttonStatus: [Bool] = [true, false, false]
     private var viewControler: TaskScreenViewController?
-    lazy var mainLabel: UILabel = {
+    private lazy var headerLabel: UILabel = {
         let label = UILabel()
         label.text = "Мои задачи"
         label.textColor = .black
@@ -19,7 +19,7 @@ class TaskScreenView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    lazy var dateLabel: UILabel = {
+    private lazy var dateLabel: UILabel = {
         let label = UILabel()
         label.text = "Вторник, 23 сентября"
         label.textColor = .lightGray
@@ -27,9 +27,13 @@ class TaskScreenView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    lazy var addTaskButton: UIButton = {
+    private lazy var addTaskButton: UIButton = {
         let button = UIButton()
-        button.setTitle(" + Новая задача ", for: .normal)
+        let action = UIAction{ [weak self] _ in
+            self?.viewControler?.openCreateScreen()
+        }
+        button.addAction(action, for: .touchUpInside)
+        button.setTitle("  + Новая задача  ", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         button.backgroundColor = UIColor(red: 227/255, green: 235/255, blue: 249/255, alpha: 1)
         button.setTitleColor(UIColor(red: 75/255, green: 124/255, blue: 231/255, alpha: 1), for: .normal)
@@ -37,7 +41,7 @@ class TaskScreenView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    lazy var tasksListTableView: UITableView = {
+    private lazy var tasksListTableView: UITableView = {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(TaskScreenTableViewCell.self, forCellReuseIdentifier: "TasksCell")
@@ -45,7 +49,7 @@ class TaskScreenView: UIView {
         tableView.separatorColor = .clear
         return tableView
     }()
-    lazy var allTaskButton: UIButton = {
+    private lazy var allTaskButton: UIButton = {
         let button = UIButton()
         let action = UIAction { [weak self] _ in
             self?.buttonStatus = [true, false, false]
@@ -56,7 +60,7 @@ class TaskScreenView: UIView {
         button.addAction(action, for: .touchUpInside)
         return button
     }()
-    lazy var allTasksLabel: UILabel = {
+    private lazy var allTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Все"
@@ -67,7 +71,7 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    lazy var countTasksLabel: UILabel = {
+    private lazy var countTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = " 0 "
@@ -79,13 +83,13 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    lazy var devidingLineLabel: UILabel = {
+    private lazy var devidingLineLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.backgroundColor = UIColor(red: 223/255, green: 223/255, blue: 223/255, alpha: 1)
         return label
     }()
-    lazy var completeTasksButton: UIButton = {
+    private lazy var completeTasksButton: UIButton = {
         let button = UIButton()
         let action = UIAction { [weak self] _ in
             self?.buttonStatus = [false, true, false]
@@ -96,7 +100,7 @@ class TaskScreenView: UIView {
         button.addAction(action, for: .touchUpInside)
         return button
     }()
-    lazy var completeTasksLabel: UILabel = {
+    private lazy var completeTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Выполненые"
@@ -107,7 +111,7 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    lazy var countCompleteTasksLabel: UILabel = {
+    private lazy var countCompleteTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = " 0 "
@@ -119,7 +123,7 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    lazy var doTasksButton: UIButton = {
+    private lazy var doTasksButton: UIButton = {
         let button = UIButton()
         let action = UIAction { [weak self] _ in
             self?.buttonStatus = [false, false, true]
@@ -130,7 +134,7 @@ class TaskScreenView: UIView {
         button.addAction(action, for: .touchUpInside)
         return button
     }()
-    lazy var doTasksLabel: UILabel = {
+    private lazy var doTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Делаю"
@@ -141,7 +145,7 @@ class TaskScreenView: UIView {
         label.sizeToFit()
         return label
     }()
-    lazy var countDoTasksLabel: UILabel = {
+    private lazy var countDoTasksLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = " 0 "
@@ -192,23 +196,22 @@ class TaskScreenView: UIView {
     }
     
     func setupLayoutHeaders() {
-        backgroundColor = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 0.98)
-        addSubview(mainLabel)
+        addSubview(headerLabel)
         addSubview(dateLabel)
         addSubview(addTaskButton)
         addSubview(tasksListTableView)
         
         NSLayoutConstraint.activate([
-            mainLabel.topAnchor.constraint(
+            headerLabel.topAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.topAnchor, constant: 15),
-            mainLabel.leadingAnchor.constraint(
+            headerLabel.leadingAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 15),
             dateLabel.topAnchor.constraint(
-                equalTo: mainLabel.bottomAnchor, constant: 5),
+                equalTo: headerLabel.bottomAnchor, constant: 5),
             dateLabel.leadingAnchor.constraint(
-                equalTo: mainLabel.leadingAnchor),
+                equalTo: headerLabel.leadingAnchor),
             addTaskButton.topAnchor.constraint(
-                equalTo: mainLabel.topAnchor, constant: -3),
+                equalTo: headerLabel.topAnchor, constant: -3),
             addTaskButton.bottomAnchor.constraint(
                 equalTo: dateLabel.bottomAnchor, constant: -3),
             addTaskButton.trailingAnchor.constraint(
@@ -289,6 +292,7 @@ class TaskScreenView: UIView {
     }
     
     func setupLayoutTasksList() {
+        backgroundColor = UIColor(red: 249/255, green: 249/255, blue: 249/255, alpha: 0.98)
         addSubview(tasksListTableView)
         
         NSLayoutConstraint.activate([
@@ -311,7 +315,7 @@ class TaskScreenView: UIView {
         doTasksLabel.textColor = UIColor(red: 183/255, green: 183/255, blue: 183/255, alpha: 1)
         countDoTasksLabel.backgroundColor = UIColor(red: 217/255, green: 217/255, blue: 217/255, alpha: 1)
         
-        viewControler?.updateTasksLists(status: buttonStatus)
+        viewControler?.updateTasksInfo()
         for counter in 0...2 {
             if buttonStatus[counter] == true {
                 if counter == 0 {
@@ -328,5 +332,9 @@ class TaskScreenView: UIView {
                 }
             }
         }
+    }
+    
+    func setupDate(date: String) {
+        dateLabel.text = date
     }
 }

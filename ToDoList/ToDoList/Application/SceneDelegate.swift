@@ -15,8 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var userDefauits = UserDefaults.standard
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        print(userDefauits.bool(forKey: "first_start"))
+        guard (scene is UIWindowScene) else { return }
         if !userDefauits.bool(forKey: "first_start") {
             networkManger.obtainStartTasks()
             userDefauits.setValue(true, forKey: "first_start")

@@ -9,7 +9,9 @@ import UIKit
 
 class TaskScreenTableViewCell: UITableViewCell {
     
-    var statusTask: Bool = false
+    private var statusTask: Bool = false
+    private var taskId: Int64 = -1
+    weak var delegate: CellDelegate?
     lazy var taskNameLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -18,7 +20,6 @@ class TaskScreenTableViewCell: UITableViewCell {
         label.numberOfLines = 100
         return label
     }()
-    
     lazy var taskDescriptionLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -27,14 +28,12 @@ class TaskScreenTableViewCell: UITableViewCell {
         label.numberOfLines = 100
         return label
     }()
-    
     lazy var seporationLineLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.backgroundColor = UIColor(red: 245/255, green: 245/255, blue: 245/255, alpha: 1)
         return label
     }()
-    
     lazy var taskDateLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -42,11 +41,13 @@ class TaskScreenTableViewCell: UITableViewCell {
         label.textColor = UIColor(red: 165/255, green: 165/255, blue: 165/255, alpha: 1)
         return label
     }()
-    
     lazy var checkMarkButton: UIButton = {
         let button = UIButton(type: .custom)
         let action = UIAction { [weak self] _ in
             self?.changeCheckMark()
+            print(self!.statusTask)
+            self?.delegate?.updateTaskInfo(taskId: self!.taskId, newStatus: self!.statusTask,
+                                           newName: self!.taskNameLabel.text ?? "", newDescription: self!.taskDescriptionLabel.text ?? "")
         }
         let imageConfig = UIImage.SymbolConfiguration(pointSize: 15, weight: .semibold, scale: .small)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -113,12 +114,22 @@ class TaskScreenTableViewCell: UITableViewCell {
         ])
     }
     
-    func setupTaskInfo(nameTask: String, descriptionTask: String, dateTask: String, statustask: Bool) {
+    func setupTaskInfo(nameTask: String, descriptionTask: String,
+                       dateTask: String, statustask: Bool, taskId: Int64) {
         taskNameLabel.text = nameTask
         taskDescriptionLabel.text = descriptionTask
         taskDateLabel.text = dateTask
+        self.taskId = taskId
         self.statusTask = statustask
-        changeCheckMark()
+        if !statusTask {
+            checkMarkButton.backgroundColor = .clear
+        } else {
+            checkMarkButton.backgroundColor = UIColor(red: 9/255, green: 99/255, blue: 237/255, alpha: 1)
+        }
+    }
+    
+    func setupDelegate(delegate: CellDelegate?) {
+        self.delegate = delegate
     }
     
     func changeCheckMark() {
